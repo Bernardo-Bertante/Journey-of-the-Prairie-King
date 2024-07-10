@@ -1,33 +1,26 @@
-import Phaser from './phaser-custom-sprite-loader';
+import Phaser from "phaser";
+import mapJSON from "./assets/tilemap/map.json";
+import loadScreen from "./scenes/loadScreen";
 
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    backgroundColor: '#2d2d2d',
-    scene: {
-        preload: preload,
-        create: create
-    }
+    width: 1000,
+    height: 1000,
+    scale: {
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
+    autoRound: false,
+    parent: "contenedor",
+    physics: {
+        default: "arcade",
+        arcade: {
+            gravity: { y: 0 },
+            debug: false,
+        },
+    },
+    backgroundColor: '#000000',
+    scene: [loadScreen]
 };
 
 const game = new Phaser.Game(config);
 
-function preload ()
-{
-    this.load.image('logo', 'assets/logo.png');
-}
-
-function create ()
-{
-    const logo = this.add.image(400, 150, 'logo');
-
-    this.tweens.add({
-        targets: logo,
-        y: 450,
-        duration: 2000,
-        ease: 'Power2',
-        yoyo: true,
-        loop: -1
-    });
-}
