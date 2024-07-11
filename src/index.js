@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import mapJSON from "./assets/tilemap/map.json";
-import loadScreen from "./scenes/loadScreen";
+import LoadScreen from "./scenes/LoadScreen";
+import Game from "./scenes/game";
 
 const config = {
     type: Phaser.AUTO,
@@ -19,7 +20,7 @@ const config = {
         },
     },
     backgroundColor: '#000000',
-    scene: [loadScreen]
+    scene: [LoadScreen, Game]
 };
 
 const game = new Phaser.Game(config);

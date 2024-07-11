@@ -1,4 +1,4 @@
-import mapJSON from "../assets/tilemap/map.json";
+
 
 export default class loadScreen extends Phaser.Scene {
     constructor() {
@@ -36,10 +36,7 @@ export default class loadScreen extends Phaser.Scene {
         this.load.on(
             "complete",
             () => {
-                // Adiciona um atraso de 0,5 segundos antes de iniciar a próxima cena
-                setTimeout(() => {
-                    this.scene.start("splash");
-                }, 500);
+                this.scene.start("game");
             },
             this
         );
@@ -57,13 +54,14 @@ export default class loadScreen extends Phaser.Scene {
         this.load.image("tiles", "../assets/images/enviromentAssets.png");
         this.load.image("logoStart", "../assets/images/logoStart.png");
         this.load.image("controlsInfo", "../assets/images/controlsInfo.png");
-        this.load.image("theKiss", "../assets/images/theKiss.png")
-        this.load.image("tree", "../assets/images/tree.png")
-        this.load.image("theKiss", "../assets/images/theKiss.png")
+        this.load.image("theKiss", "../assets/images/theKiss.png");
+        this.load.image("tree", "../assets/images/tree.png");
+        this.load.image("theKiss", "../assets/images/theKiss.png");
+        this.load.image("bossDialogue", "../assets/images/bossDialogue.png");
     }
 
     loadMap() {
-        this.load.tilemapTiledJSON("map", mapJSON);
+        this.load.tilemapTiledJSON("map", "../assets/tilemap/map.json");
     }
 
     loadAudios() {
@@ -91,6 +89,11 @@ export default class loadScreen extends Phaser.Scene {
             frameWidth: 16,
             frameHeight: 16,
         })
+        this.load.spritesheet("boss", "../assets/images/boss.png", {
+            frameWidth: 16,
+            frameHeight: 16,
+        })
+
     }
 
     setRegistry() {
