@@ -44,3 +44,9 @@ targets all browsers with total usage over "0.25%" but excludes IE11 and Opera M
 If you want to customize your build, such as adding a new webpack loader or plugin (i.e. for loading CSS or fonts), you can
 modify the `webpack/base.js` file for cross-project changes, or you can modify and / or create
 new configuration files and target them in specific npm tasks inside of `package.json'.
+
+### The GAME
+
+This game is inspired by an existing game named The Journey Of The Prairie King, which is a game within another famous game, Stardew Valley! Essentially, you play as a cowboy in a forest landscape fighting against farmer zombies. These zombies come from the four main cardinal directions in groups, chasing you. When they collide with the player, the player dies but respawns blinking and is immune for a few seconds.
+
+As the player, you can shoot in any direction to kill the zombies—one hit, one kill! You can also walk anywhere to run from them. After surviving for a period, you progress to the next level. Each new level is the same but with a different scenario. The last level consists of a boss fight against Dracula (Draco). He shoots at you continuously and doesn't die from one shot, but you can cover yourself to avoid his shots. Finally, when you kill the boss, the final scene starts with you kissing the lady you saved!
