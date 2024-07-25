@@ -1,10 +1,6 @@
-const GUNS = {
-  rusty: { color: 0xaf8057, radius: 16, intensity: 0.4 },
-  backToHell: { color: 0xfff6d5, radius: 16, intensity: 0.4 },
-  hollyOne: { color: 0xffffff, radius: 16, intensity: 0.4 },
-};
+import Phaser from "phaser";
 
-class Shot extends Phaser.GameObjects.PointLight {
+class Shot extends Phaser.GameObjects.Sprite {
   constructor(
     scene,
     x,
@@ -12,10 +8,9 @@ class Shot extends Phaser.GameObjects.PointLight {
     gun = "rusty",
     playerName,
     velocityX = 0,
-    velocityY = -500
+    velocityY = 0
   ) {
-    const { color, radius, intensity } = GUNS[gun];
-    super(scene, x, y, color, radius, intensity);
+    super(scene, x, y);
     this.name = "shot";
     this.playerName = playerName;
     scene.add.existing(this);
@@ -23,14 +18,33 @@ class Shot extends Phaser.GameObjects.PointLight {
     this.body.setAllowGravity(false);
     this.body.setVelocityX(velocityX);
     this.body.setVelocityY(velocityY);
-    this.body.setCircle(10);
-    // this.body.setOffset(6, 9);
+    this.body.setCircle(8);
+    this.setScale(1.5);
+    this.body.setOffset(-5, -5);
     this.body.setCollideWorldBounds(true);
     this.body.onWorldBounds = true;
     this.init();
   }
 
   init() {
+    this.scene.anims.create({
+      key: "bulletAnim",
+      frames: this.scene.anims.generateFrameNumbers(this.name, {
+        start: 0,
+        end: 0,
+      }),
+      frameRate: 1,
+      repeat: -1,
+    });
+
+    this.anims.play("bulletAnim", true);
+
+    this.scene.tweens.add({
+      targets: this,
+      duration: 200,
+      rotation: 5,
+      repeat: -1,
+    });
     this.scene.tweens.add({
       targets: this,
       duration: 200,

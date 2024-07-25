@@ -4,8 +4,8 @@ import Game from "./scenes/game";
 
 const config = {
   type: Phaser.AUTO,
-  width: 1000,
-  height: 1000,
+  width: 640,
+  height: 640,
   scale: {
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
@@ -20,6 +20,15 @@ const config = {
   },
   backgroundColor: "#000000",
   scene: [LoadScreen, Game],
+  // plugins: {
+  //   scene: [
+  //     {
+  //       key: "LightPlugin",
+  //       plugin: Phaser.Plugins.LightPlugin,
+  //       mapping: "lights",
+  //     },
+  //   ],
+  // },
 };
 
 const game = new Phaser.Game(config);

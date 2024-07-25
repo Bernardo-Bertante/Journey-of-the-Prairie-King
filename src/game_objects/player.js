@@ -6,12 +6,15 @@ class Player extends Phaser.GameObjects.Sprite {
     super(scene, x, y, name);
     this.name = name;
     this.gun = gun;
+    this.moveX = 0;
+    this.moveY = 0;
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.body.setCollideWorldBounds(true);
     this.body.setAllowGravity(false);
-    this.body.setCircle(26);
-    //this.body.setOffset(6, 9);
+    this.body.setCircle(8);
+    this.setScale(2);
+
     this.power = 0;
     this.blinking = false;
     this.shootingPatterns = new ShootingPatterns(this.scene, this.name);
@@ -31,12 +34,12 @@ class Player extends Phaser.GameObjects.Sprite {
     });
 
     this.scene.anims.create({
-      key: this.name + "walkFoward",
+      key: this.name + "walkForward",
       frames: this.scene.anims.generateFrameNumbers(this.name, {
         start: 2,
         end: 3,
       }),
-      frameRate: 2,
+      frameRate: 4,
       repeat: -1,
     });
 
@@ -46,7 +49,7 @@ class Player extends Phaser.GameObjects.Sprite {
         start: 0,
         end: 1,
       }),
-      frameRate: 2,
+      frameRate: 4,
       repeat: -1,
     });
 
@@ -56,7 +59,7 @@ class Player extends Phaser.GameObjects.Sprite {
         start: 7,
         end: 8,
       }),
-      frameRate: 2,
+      frameRate: 4,
       repeat: -1,
     });
 
@@ -66,7 +69,7 @@ class Player extends Phaser.GameObjects.Sprite {
         start: 9,
         end: 10,
       }),
-      frameRate: 2,
+      frameRate: 4,
       repeat: -1,
     });
 
@@ -80,7 +83,7 @@ class Player extends Phaser.GameObjects.Sprite {
       repeat: -1,
     });
 
-    this.anims.play(this.name, true);
+    this.anims.play(this.name + "walkBackward", true);
     this.upDelta = 0;
   }
 
@@ -88,43 +91,93 @@ class Player extends Phaser.GameObjects.Sprite {
     this.SPACE = this.scene.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
-    this.cursor = this.scene.input.keyboard.createCursorKeys();
-    this.cursor = this.scene.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.W
-    );
-    this.cursor = this.scene.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.A
-    );
-    this.cursor = this.scene.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.S
-    );
-    this.cursor = this.scene.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.D
-    );
+    this.cursors = this.scene.input.keyboard.createCursorKeys();
+    this.W = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    this.A = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+    this.S = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    this.D = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
   }
 
   shoot() {
-    //this.scene.playAudio("shot");
-    this.shootingPatterns.shoot(this.x, this.y, this.gun);
+    // this.scene.playAudio("shot");
+    const shotSpeed = 400;
+
+    let velocityX = 0;
+    let velocityY = 0;
+
+    if (this.cursors.left.isDown || this.A.isDown) {
+      velocityX = -1;
+    }
+    if (this.cursors.right.isDown || this.D.isDown) {
+      velocityX = 1;
+    }
+    if (
+      this.cursors.up.isDown ||
+      this.W.isDown ||
+      (this.moveX === 0) & (this.moveY === 0)
+    ) {
+      velocityY = -1;
+    }
+    if (this.cursors.down.isDown || this.S.isDown) {
+      velocityY = 1;
+    }
+
+    // Normalização do Vetor
+    const magnitude = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+    if (magnitude > 0) {
+      velocityX = (velocityX / magnitude) * shotSpeed;
+      velocityY = (velocityY / magnitude) * shotSpeed;
+    }
+
+    this.shootingPatterns.shoot(this.x, this.y, this.gun, velocityX, velocityY);
   }
 
-  update() {
+  update(timestep, delta) {
     if (this.death) return;
-    if (this.cursor.left.isDown) {
-      this.x -= 5;
-      this.anims.play(this.name + "left", true);
-    } else if (this.cursor.right.isDown) {
-      this.x += 5;
-      this.anims.play(this.name + "right", true);
-    } else if (this.cursor.down.isDown) {
-      this.y += 5;
-      this.anims.play(this.name + "walkFoward", true);
-    } else if (this.cursor.up.isDown) {
-      this.y -= 5;
-      this.anims.play(this.name + "walkBackward", true);
-    } else {
-      this.anims.play(this.name + "idle", true);
+
+    const speed = 3;
+    this.moveX = 0;
+    this.moveY = 0;
+
+    if (this.cursors.left.isDown || this.A.isDown) {
+      this.moveX = -1;
     }
+    if (this.cursors.right.isDown || this.D.isDown) {
+      this.moveX = 1;
+    }
+    if (this.cursors.up.isDown || this.W.isDown) {
+      this.moveY = -1;
+    }
+    if (this.cursors.down.isDown || this.S.isDown) {
+      this.moveY = 1;
+    }
+
+    // Normalização da velocidade de movimento
+    const magnitude = Math.sqrt(
+      this.moveX * this.moveX + this.moveY * this.moveY
+    );
+    if (magnitude > 0) {
+      this.moveX = (this.moveX / magnitude) * speed;
+      this.moveY = (this.moveY / magnitude) * speed;
+    }
+
+    // Definir animações com base na direção do movimento
+    if (this.moveX !== 0 || this.moveY !== 0) {
+      if (this.moveX > 0) {
+        this.anims.play(this.name + "right", true);
+      } else if (this.moveX < 0) {
+        this.anims.play(this.name + "left", true);
+      } else if (this.moveY > 0) {
+        this.anims.play(this.name + "walkForward", true);
+      } else if (this.moveY < 0) {
+        this.anims.play(this.name + "walkBackward", true);
+      }
+    } else {
+      this.anims.play(this.name + "walkBackward", true);
+    }
+
+    this.x += this.moveX;
+    this.y += this.moveY;
 
     if (Phaser.Input.Keyboard.JustDown(this.SPACE)) {
       this.shoot();
@@ -169,3 +222,5 @@ class Player extends Phaser.GameObjects.Sprite {
     super.destroy();
   }
 }
+
+export default Player;

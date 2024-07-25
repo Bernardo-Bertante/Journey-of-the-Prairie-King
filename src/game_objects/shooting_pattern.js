@@ -11,26 +11,38 @@ export default class ShootingPatterns {
     };
   }
 
-  shoot(x, y, gun) {
-    this.shootingMethods[gun](x, y, gun);
+  shoot(x, y, gun, velocityX = 0, velocityY = 0) {
+    this.shootingMethods[gun](x, y, gun, velocityX, velocityY);
   }
 
-  single(x, y, gun) {
-    this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name));
+  single(x, y, gun, velocityX, velocityY) {
+    this.scene.shots.add(
+      new Shot(this.scene, x, y, gun, this.name, velocityX, velocityY)
+    );
   }
 
-  quintus(x, y, gun) {
-    this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, -300));
-    this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, 300));
+  quintus(x, y, gun, velocityX, velocityY) {
+    this.scene.shots.add(
+      new Shot(this.scene, x, y, gun, this.name, -300, velocityY)
+    );
+    this.scene.shots.add(
+      new Shot(this.scene, x, y, gun, this.name, 300, velocityY)
+    );
     this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, -300, 500));
     this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, 300, 500));
   }
 
-  massacre(x, y, gun) {
-    this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, -300));
-    this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, 300));
+  massacre(x, y, gun, velocityX, velocityY) {
+    this.scene.shots.add(
+      new Shot(this.scene, x, y, gun, this.name, -300, velocityY)
+    );
+    this.scene.shots.add(
+      new Shot(this.scene, x, y, gun, this.name, 300, velocityY)
+    );
     this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, 0, 500));
-    this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, 30));
-    this.scene.shots.add(new Shot(this.scene, x, y, gun, this.name, 60));
+    this.scene.shots.add(
+      new Shot(this.scene, x, y, gun, this.name, 30, velocityY)
+    );
+    this.scene.shots.add(new Shot(this.scene, x, y, gun, 60, velocityY));
   }
 }

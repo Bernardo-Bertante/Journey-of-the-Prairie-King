@@ -84,6 +84,14 @@ export default class loadScreen extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
+    this.load.spritesheet("explosion", "../assets/images/explosion.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    this.load.spritesheet("shot", "../assets/images/bullets.png", {
+      frameWidth: 5,
+      frameHeight: 5,
+    });
   }
 
   setRegistry() {
