@@ -15,19 +15,25 @@ export default class EnemyGenerator {
       this.scene.time.delayedCall(2000, () => this.dracoAppears(), null, this);
     } else {
       this.generateEvent1 = this.scene.time.addEvent({
-        delay: 5000,
+        delay: 7000,
         callback: () => this.orderedWave(),
         callbackScope: this,
         loop: true,
       });
-      if (this.scene.number === 2) {
-        this.generateEvent2 = this.scene.time.addEvent({
-          delay: 5000,
-          callback: () => this.wave(),
-          callbackScope: this,
-          loop: true,
-        });
-      }
+      this.generateEvent2 = this.scene.time.addEvent({
+        delay: 15000,
+        callback: () => this.wave(),
+        callbackScope: this,
+        loop: true,
+      });
+      // if (this.scene.number === 2) {
+      //   this.generateEvent2 = this.scene.time.addEvent({
+      //     delay: 5000,
+      //     callback: () => this.wave(),
+      //     callbackScope: this,
+      //     loop: true,
+      //   });
+      // }
     }
   }
 
@@ -81,8 +87,8 @@ export default class EnemyGenerator {
       .forEach((_, i) => this.addOrder(i, x, y, minus));
   }
 
-  wave(difficulty = 5) {
-    //this.createPath();
+  wave(difficulty = 3) {
+    this.createPath();
     const x = Phaser.Math.Between(64, this.scene.width - 200);
     const y = Phaser.Math.Between(-100, 0);
     const minus = Phaser.Math.Between(-1, 1) > 0 ? 1 : -1;
@@ -123,14 +129,13 @@ export default class EnemyGenerator {
       ease: "Linear",
       duration: 12000,
       repeat: -1,
-      delay: i * 100,
+      delay: i * 2000,
     });
-    this;
     this.scene.enemyWaveGroup.add(enemy);
   }
 
   createPath() {
-    this.wave++;
+    this.waves++;
     if (this.waves === 3) this.finishScene();
 
     // Seleciona aleatoriamente um dos quatro cantos para a origem dos inimigos
@@ -155,27 +160,22 @@ export default class EnemyGenerator {
   }
 
   update() {
+    console.log("Updating EnemyGenerator");
+
     if (this.path) {
       this.path.draw(this.graphics);
 
-      const playerPosition = new Phaser.Math.Vector2(
-        this.player.x,
-        this.player.y
-      );
-
       this.scene.enemyWaveGroup.children.entries.forEach((enemy) => {
         if (enemy === null || !enemy.active) return;
-
-        // Mover inimigo em direção ao jogador
-        const enemyPosition = new Phaser.Math.Vector2(enemy.x, enemy.y);
-        const direction = playerPosition.subtract(enemyPosition).normalize();
-        const speed = 100; // Ajuste a velocidade conforme necessário
-        enemy.setVelocity(direction.x * speed, direction.y * speed);
-
+        let t = enemy.z;
+        let vec = enemy.getData("vector");
+        this.path.getPoint(t, vec);
+        enemy.setPosition(vec.x, vec.y);
         enemy.setDepth(enemy.y);
       });
 
       if (this.activeWave && this.checkIfWaveDestroyed()) {
+        console.log("Wave destroyed");
         this.activeWave = false;
         this.scene.spawnGun();
         this.path.destroy();
@@ -188,6 +188,7 @@ export default class EnemyGenerator {
         !enemy.active ||
         enemy.y > this.scene.height + 100
       ) {
+        console.log(`Destroying enemy at (${enemy.x}, ${enemy.y})`);
         enemy.destroy();
       }
       enemy.update();
@@ -195,8 +196,18 @@ export default class EnemyGenerator {
   }
 
   checkIfWaveDestroyed() {
-    const enemies = this.scene.enemyWaveGroup.children.entries;
+    const enemies = this.scene.enemyWaveGroup.getChildren();
+    const activeEnemies = enemies.filter((enemy) => enemy.active);
 
-    return enemies.length === enemies.filter((enemy) => !enemy.active).length;
+    console.log(`Total enemies: ${enemies.length}`);
+    console.log(`Active enemies: ${activeEnemies.length}`);
+
+    enemies.forEach((enemy, index) => {
+      console.log(
+        `Enemy ${index}: active=${enemy.active}, x=${enemy.x}, y=${enemy.y}`
+      );
+    });
+
+    return activeEnemies.length === 0;
   }
 }

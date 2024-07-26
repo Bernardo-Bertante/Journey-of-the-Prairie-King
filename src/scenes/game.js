@@ -13,6 +13,7 @@ export default class Game extends Phaser.Scene {
     this.enemies = null;
     this.kills = 0;
     this.killsText = null;
+    this.gunsGroup = null;
   }
 
   init(data) {
@@ -125,10 +126,10 @@ export default class Game extends Phaser.Scene {
   // }
 
   spawnGun() {
+    console.log("Spawning gun");
     const { x, y } = this.lastDestroyedWaveFoe;
     this.revolver = new Guns(this, x, y);
     this.gunsGroup.add(this.revolver);
-    v;
   }
 
   addKills() {
@@ -176,7 +177,7 @@ export default class Game extends Phaser.Scene {
 
   addGuns() {
     this.available = ["backToHell", "hollyOne"];
-    this.guns = this.add.group();
+    this.gunsGroup = this.add.group();
   }
 
   addColliders() {
@@ -225,7 +226,7 @@ export default class Game extends Phaser.Scene {
     this.physics.add.overlap(
       this.shots,
       this.enemyWaveGroup,
-      this.destroyEnemy,
+      this.destroyWaveEnemy,
       () => {
         return true;
       },
@@ -234,7 +235,7 @@ export default class Game extends Phaser.Scene {
 
     this.physics.add.collider(
       this.players,
-      this.guns,
+      this.gunsGroup,
       this.pickGun,
       () => {
         return true;
@@ -294,7 +295,7 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  crashPlayer(player, enemy) {
+  crashEnemy(player, enemy) {
     if (player.blinking) return;
     player.dead();
     //this.playAudio("explosion");
@@ -304,12 +305,12 @@ export default class Game extends Phaser.Scene {
 
   pickGun(player, gun) {
     //this.playAudio("stageclear1");
-    this.updateKills(player, gun);
+    this.updateGuns(player, gun);
     this.tweens.add({
       targets: player,
       duration: 200,
       alpha: { from: 0.5, to: 1 },
-      scale: { from: 1.4, to: 1 },
+      scale: { from: 2.4, to: 2 },
       repeat: 3,
     });
     gun.destroy();

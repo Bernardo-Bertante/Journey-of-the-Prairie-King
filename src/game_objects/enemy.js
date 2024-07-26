@@ -9,6 +9,7 @@ const TYPES = {
 class Enemy extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, name = "zombie", velocityX = 0, velocityY = 0) {
     super(scene, x, y, name);
+    console.log(`Creating enemy: ${name} at (${x}, ${y})`);
     this.name = name;
     this.points = TYPES[name].points;
     this.lives = TYPES[name].lives;
@@ -26,7 +27,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
     this.init();
   }
 
-  setGuinxuShot() {
+  setDracoShot() {
     this.patternIndex = 0;
     this.pattern = Phaser.Utils.Array.NumberArrayStep(-300, 300, 50);
     this.pattern = this.pattern.concat(
@@ -81,6 +82,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
   }
 
   dead() {
+    console.log(`Enemy ${this.name} is dead`);
     if (this.name === "draco") {
       this.scene.cameras.main.shake(500);
     }
@@ -104,7 +106,9 @@ class Enemy extends Phaser.GameObjects.Sprite {
       this.scene.playAudio("explosion");
       this.scene.endScene();
     }
-    this.destroy();
+    this.setActive(false); // Marcando como inativo
+    this.setVisible(false); // Tornando invisível
+    this.destroy(); // Destruindo o objeto
   }
 
   showPoints(score, color = 0xff0000) {

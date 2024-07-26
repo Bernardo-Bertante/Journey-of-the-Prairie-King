@@ -11,7 +11,7 @@ export default class ShootingPatterns {
     };
   }
 
-  shoot(x, y, gun, velocityX = 0, velocityY = 0) {
+  shoot(x, y, gun = "backToHell", velocityX = 0, velocityY = 0) {
     this.shootingMethods[gun](x, y, gun, velocityX, velocityY);
   }
 
