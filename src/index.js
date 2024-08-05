@@ -1,6 +1,9 @@
 import Phaser from "phaser";
 import LoadScreen from "./scenes/LoadScreen";
 import Game from "./scenes/game";
+import Transition from "./scenes/transition";
+import Splash from "./scenes/splash";
+import Outro from "./scenes/outro";
 
 const config = {
   type: Phaser.AUTO,
@@ -15,20 +18,11 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 0 },
-      debug: false,
+      debug: true,
     },
   },
   backgroundColor: "#000000",
-  scene: [LoadScreen, Game],
-  // plugins: {
-  //   scene: [
-  //     {
-  //       key: "LightPlugin",
-  //       plugin: Phaser.Plugins.LightPlugin,
-  //       mapping: "lights",
-  //     },
-  //   ],
-  // },
+  scene: [LoadScreen, Splash, Transition, Game, Outro],
 };
 
 const game = new Phaser.Game(config);

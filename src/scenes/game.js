@@ -9,11 +9,14 @@ export default class Game extends Phaser.Scene {
     super({ key: "game" });
     this.player = null;
     this.enemyGroup = null;
-    this.enemyWaveGroup = null;
+
     this.enemies = null;
     this.kills = 0;
     this.killsText = null;
     this.gunsGroup = null;
+
+    this.timeElapsed = 0;
+    this.timerEvent = null;
   }
 
   init(data) {
@@ -37,8 +40,8 @@ export default class Game extends Phaser.Scene {
     // this.lights.setAmbientColor(0x555555);
 
     this.createMap();
-    // this.createTreeAnimations();
-    //this.createTrees();
+    this.createTreeAnimations();
+    this.createTrees();
 
     this.addKills();
     this.addPlayer();
@@ -47,22 +50,34 @@ export default class Game extends Phaser.Scene {
     this.addShots();
     // this.loadAudios();
     this.addColliders();
+
+    if (this.number < 3) {
+      this.timerEvent = this.time.addEvent({
+        delay: 28000,
+        callback: this.endScene,
+        callbackScope: this,
+      });
+    }
   }
 
   createMap() {
-    // Associa o tilemap com o tileset
-    this.map = this.make.tilemap({ key: "map" });
+    if (this.number === undefined) {
+      console.error("Level number is undefined");
+      return;
+    }
+    // Associates the tilemap with the tileset
+    this.map = this.make.tilemap({ key: "map" + this.number });
     const tileset = this.map.addTilesetImage("assets", "tiles");
 
-    // Cria os dois principais Layers do jogo
+    // Create the main layers of the game
     this.groundLayer = this.map.createStaticLayer("groundLayer", tileset, 0, 0);
 
-    // this.treeAnimLayer = this.map.createStaticLayer(
-    //   "treeAnimLayer",
-    //   tileset,
-    //   0,
-    //   0
-    // );
+    this.treeAnimLayer = this.map.createStaticLayer(
+      "treeAnimLayer",
+      tileset,
+      0,
+      0
+    );
 
     this.objectColliderLayer = this.map.createStaticLayer(
       "objectColliderLayer",
@@ -76,58 +91,57 @@ export default class Game extends Phaser.Scene {
     const gameWidth = this.cameras.main.width;
     const gameHeight = this.cameras.main.height;
 
-    // Obter as dimensões originais do mapa
+    // Get the dimensions of the map
     const mapWidth = this.map.widthInPixels;
     const mapHeight = this.map.heightInPixels;
 
-    // Aplicar o fator de escala
+    // Apply the scale factor
     const scaleFactor = 2;
     const scaledMapWidth = mapWidth * scaleFactor;
     const scaledMapHeight = mapHeight * scaleFactor;
 
-    // Calcular as coordenadas centrais ajustadas
+    // Calculates the central coordinates adjusted
     const centerX = (gameWidth - scaledMapWidth) / 2;
     const centerY = (gameHeight - scaledMapHeight) / 2;
 
     this.groundLayer.setScale(scaleFactor);
     this.objectColliderLayer.setScale(scaleFactor);
-    //this.treeAnimLayer.setScale(scaleFactor);
+    this.treeAnimLayer.setScale(scaleFactor);
 
     this.groundLayer.setPosition(centerX, centerY);
     this.objectColliderLayer.setPosition(centerX, centerY);
-    //this.treeAnimLayer.setPosition(centerX, centerY);
+    this.treeAnimLayer.setPosition(centerX, centerY);
 
-    // const debugGraphics = this.add.graphics().setAlpha(0.75);
-    // this.objectColliderLayer.renderDebug(debugGraphics, {
-    //   tileColor: null, // Color of non-colliding tiles
-    //   collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-    //   faceColor: new Phaser.Display.Color(40, 39, 37, 255), // Color of colliding face edges
-    // });
+    const debugGraphics = this.add.graphics().setAlpha(0.75);
+    this.objectColliderLayer.renderDebug(debugGraphics, {
+      tileColor: null, // Color of non-colliding tiles
+      collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+      faceColor: new Phaser.Display.Color(40, 39, 37, 255), // Color of colliding face edges
+    });
   }
 
-  // createTreeAnimations() {
-  //   this.anims.create({
-  //     key: "treeSwing",
-  //     frames: this.anims.generateFrameNumbers("tree", { start: 0, end: 1 }),
-  //     frameRate: 1,
-  //     repeat: -1,
-  //   });
-  // }
+  createTreeAnimations() {
+    this.anims.create({
+      key: "treeSwing",
+      frames: this.anims.generateFrameNumbers("tree", { start: 0, end: 1 }),
+      frameRate: 1,
+      repeat: -1,
+    });
+  }
 
-  // createTrees() {
-  //   this.treeAnimLayer.forEachTile((tile) => {
-  //     if (tile.index !== -1) {
-  //       // Verifica se o tile não está vazio
-  //       const x = tile.getCenterX();
-  //       const y = tile.getCenterY();
-  //       new Tree(this, x, y); // Instancia a árvore animada
-  //     }
-  //   });
-  // }
+  createTrees() {
+    this.treeAnimLayer.forEachTile((tile) => {
+      if (tile.index !== -1) {
+        // Verifica se o tile não está vazio
+        const x = tile.getCenterX();
+        const y = tile.getCenterY();
+        new Tree(this, x, y); // Instancia a árvore animada
+      }
+    });
+  }
 
-  spawnGun() {
-    console.log("Spawning gun");
-    const { x, y } = this.lastDestroyedWaveFoe;
+  spawnGun(enemy) {
+    const { x, y } = enemy;
     this.revolver = new Guns(this, x, y);
     this.gunsGroup.add(this.revolver);
   }
@@ -171,7 +185,7 @@ export default class Game extends Phaser.Scene {
 
   addEnemies() {
     this.enemyGroup = this.add.group();
-    this.enemyWaveGroup = this.add.group();
+    this.enemyShots = this.add.group();
     this.enemies = new EnemyGenerator(this, this.player);
   }
 
@@ -181,13 +195,13 @@ export default class Game extends Phaser.Scene {
   }
 
   addColliders() {
-    this.physics.add.collider(this.player, this.objectColliderLayer);
+    this.physics.add.collider(this.players, this.objectColliderLayer);
 
     // this.physics.add.overlap(
-    //   this.player,
+    //   this.players,
     //   this.objectColliderLayer,
     //   (player, tile) => {
-    //     console.log("Overlap detected!");
+    //     console.log("Overlap detected!", tile);
     //   },
     //   null,
     //   this
@@ -196,16 +210,6 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider(
       this.players,
       this.enemyGroup,
-      this.crashEnemy,
-      () => {
-        return true;
-      },
-      this
-    );
-
-    this.physics.add.collider(
-      this.players,
-      this.enemyWaveGroup,
       this.crashEnemy,
       () => {
         return true;
@@ -224,9 +228,9 @@ export default class Game extends Phaser.Scene {
     );
 
     this.physics.add.overlap(
-      this.shots,
-      this.enemyWaveGroup,
-      this.destroyWaveEnemy,
+      this.players,
+      this.enemyShots,
+      this.hitPlayer,
       () => {
         return true;
       },
@@ -247,56 +251,46 @@ export default class Game extends Phaser.Scene {
 
   onWorldBounds(body, t) {
     const name = body.gameObject.name.toString();
-    if (["shot"].includes(name)) {
+    if (["enemyShot", "shot"].includes(name)) {
       body.gameObject.destroy();
     }
   }
 
-  destroyWaveEnemy(shot, enemy) {
-    this.lastDestroyedWaveFoe = { x: enemy.x, y: enemy.y };
-    this.destroyEnemy(shot, enemy);
+  hitPlayer(player, shot) {
+    if (player.blinking) return;
+
+    this.players.remove(this.player);
+    player.dead();
+    //this.playAudio("explosion");
+    shot.destroy();
+    this.time.delayedCall(1000, () => this.respawnPlayer(), null, this);
   }
 
   destroyEnemy(shot, enemy) {
     enemy.lives--;
-    // this.playAudio("enemyexplosion");
-    // const point = this.lights.addPointLight(shot.x, shot.y, 0xffffff, 10, 0.7);
-    // this.tweens.add({
-    //   targets: point,
-    //   duration: 400,
-    //   scale: { from: 1, to: 0 },
-    // });
     this.tweens.add({
       targets: enemy,
       duration: 400,
-      tint: { from: 0xffffff, to: 0xff0000 },
+      tint: { from: 0x000000, to: 0xffffff },
     });
 
-    this.updateKills(shot.playerName, 1);
+    this.updateKills(shot.playerName, 0);
     this.tweens.add({ targets: enemy, y: "-=1", yoyo: true, duration: 100 });
 
     shot.destroy();
     if (enemy.lives === 0) {
-      // this.playAudio("enemydestroy");
-      // const point = this.lights.addPointLight(
-      //   shot.x,
-      //   shot.y,
-      //   0xffffff,
-      //   10,
-      //   0.7
-      // );
-      // this.tweens.add({
-      //   targets: point,
-      //   duration: 400,
-      //   scale: { from: 1, to: 0 },
-      // });
       this.updateKills(shot.playerName, enemy.points);
       enemy.dead();
+    }
+
+    this.random = Phaser.Math.Between(1, 30);
+    if (this.random > 29 && enemy.name !== "draco") {
+      this.spawnGun(enemy);
     }
   }
 
   crashEnemy(player, enemy) {
-    if (player.blinking) return;
+    if (player.blinking || enemy.name === "draco") return;
     player.dead();
     //this.playAudio("explosion");
     enemy.dead();
@@ -327,6 +321,9 @@ export default class Game extends Phaser.Scene {
       repeat: 10,
       onComplete: () => {
         this.player.blinking = false;
+        if (this.number < 3) {
+          this.enemies.resetEnemyGeneration(this.player);
+        }
       },
     });
   }
@@ -344,18 +341,19 @@ export default class Game extends Phaser.Scene {
     };
   }
 
-  playAudio(key) {
-    this.audio[key].play();
-  }
+  // playAudio(key) {
+  //   this.audio[key].play();
+  // }
 
-  update() {
+  update(time, delta) {
     if (this.player) this.player.update();
     if (this.enemies) this.enemies.update();
+    this.timeElapsed += delta;
   }
 
   endScene() {
     this.time.delayedCall(
-      2000,
+      1000,
       () => {
         this.finishScene();
       },
@@ -367,7 +365,7 @@ export default class Game extends Phaser.Scene {
   finishScene() {
     this.game.sound.stopAll();
     this.scene.stop("game");
-    const scene = this.number < 4 ? "transition" : "outro";
+    const scene = this.number === 3 ? "outro" : "transition";
     this.scene.start(scene, {
       next: "game",
       name: "STAGE",
@@ -385,25 +383,19 @@ export default class Game extends Phaser.Scene {
   }
 
   updateKills(playerName, kills = 0) {
-    // Verifica se o registro de kills para o jogador foi inicializado, se não, inicializa com 0
     if (!this.registry.has("kills_" + playerName)) {
       this.registry.set("kills_" + playerName, 0);
     }
 
-    // Obtém o score atual e adiciona as kills
     const score = +this.registry.get("kills_" + playerName) + kills;
 
-    // Atualiza o registro com o novo score
     this.registry.set("kills_" + playerName, score);
 
-    // Verifica se o elemento de texto de kills foi inicializado corretamente
     if (this.kills[playerName] && this.kills[playerName]["killsText"]) {
-      // Atualiza o texto de kills
       this.kills[playerName]["killsText"].setText(
         String(score).padStart(6, "0")
       );
 
-      // Adiciona uma animação ao texto de kills
       this.tweens.add({
         targets: this.kills[playerName]["killsText"],
         duration: 200,

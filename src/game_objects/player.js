@@ -111,14 +111,14 @@ class Player extends Phaser.GameObjects.Sprite {
     if (this.cursors.right.isDown || this.D.isDown) {
       velocityX = 1;
     }
-    if (
-      this.cursors.up.isDown ||
-      this.W.isDown ||
-      (this.moveX === 0) & (this.moveY === 0)
-    ) {
+    if (this.cursors.up.isDown || this.W.isDown) {
       velocityY = -1;
     }
-    if (this.cursors.down.isDown || this.S.isDown) {
+    if (
+      this.cursors.down.isDown ||
+      this.S.isDown ||
+      (this.moveX === 0) & (this.moveY === 0)
+    ) {
       velocityY = 1;
     }
 
@@ -152,7 +152,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.moveY = 1;
     }
 
-    // Normalização da velocidade de movimento
+    // Normalization of the movement vector
     const magnitude = Math.sqrt(
       this.moveX * this.moveX + this.moveY * this.moveY
     );
@@ -161,7 +161,6 @@ class Player extends Phaser.GameObjects.Sprite {
       this.moveY = (this.moveY / magnitude) * speed;
     }
 
-    // Definir animações com base na direção do movimento
     if (this.moveX !== 0 || this.moveY !== 0) {
       if (this.moveX > 0) {
         this.anims.play(this.name + "right", true);
@@ -173,7 +172,7 @@ class Player extends Phaser.GameObjects.Sprite {
         this.anims.play(this.name + "walkBackward", true);
       }
     } else {
-      this.anims.play(this.name + "walkBackward", true);
+      this.anims.play(this.name + "idle", true);
     }
 
     this.x += this.moveX;
@@ -206,7 +205,7 @@ class Player extends Phaser.GameObjects.Sprite {
   dead() {
     const explosion = this.scene.add
       .circle(this.x, this.y, 10)
-      .setStrokeStyle(40, 0xffffff);
+      .setStrokeStyle(20, 0xffffff);
     this.scene.tweens.add({
       targets: explosion,
       radius: { from: 10, to: 200 },

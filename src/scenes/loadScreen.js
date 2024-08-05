@@ -35,7 +35,7 @@ export default class loadScreen extends Phaser.Scene {
     this.load.on(
       "complete",
       () => {
-        this.scene.start("game");
+        this.scene.start("splash");
       },
       this
     );
@@ -52,13 +52,21 @@ export default class loadScreen extends Phaser.Scene {
   loadImages() {
     this.load.image("tiles", "../assets/images/enviromentAssets.png");
     this.load.image("logoStart", "../assets/images/logoStart.png");
-    this.load.image("controlsInfo", "../assets/images/controlsInfo.png");
     this.load.image("theKiss", "../assets/images/finalKiss.png");
     this.load.image("bossDialogue", "../assets/images/bossDialogue.png");
   }
 
   loadMap() {
-    this.load.tilemapTiledJSON("map", "../assets/tilemap/map.json");
+    //this.load.tilemapTiledJSON("map", "../assets/tilemap/map.json");
+
+    Array(3)
+      .fill(0)
+      .forEach((_, i) => {
+        this.load.tilemapTiledJSON(
+          `map${i + 1}`,
+          `../assets/tilemap/map${i + 1}.json`
+        );
+      });
   }
 
   loadAudios() {}
@@ -80,7 +88,7 @@ export default class loadScreen extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
-    this.load.spritesheet("boss", "../assets/images/boss.png", {
+    this.load.spritesheet("draco", "../assets/images/boss.png", {
       frameWidth: 16,
       frameHeight: 16,
     });

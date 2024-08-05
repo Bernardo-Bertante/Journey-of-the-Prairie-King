@@ -2,14 +2,13 @@ import Explosion from "./explosion";
 import EnemyShot from "./enemy_shot";
 
 const TYPES = {
-  zombie: { points: 400, lives: 1 },
-  draco: { points: 10000, lives: 20 },
+  zombie: { points: 1, lives: 1 },
+  draco: { points: 0, lives: 5 },
 };
 
 class Enemy extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, name = "zombie", velocityX = 0, velocityY = 0) {
     super(scene, x, y, name);
-    console.log(`Creating enemy: ${name} at (${x}, ${y})`);
     this.name = name;
     this.points = TYPES[name].points;
     this.lives = TYPES[name].lives;
@@ -21,26 +20,14 @@ class Enemy extends Phaser.GameObjects.Sprite {
     this.body.setVelocityX(velocityX);
     this.body.setVelocityY(velocityY);
     this.setData("vector", new Phaser.Math.Vector2());
-    if (this.name === "draco") {
-      this.setDracoShot();
-    }
     this.init();
-  }
 
-  setDracoShot() {
-    this.patternIndex = 0;
-    this.pattern = Phaser.Utils.Array.NumberArrayStep(-300, 300, 50);
-    this.pattern = this.pattern.concat(
-      Phaser.Utils.Array.NumberArrayStep(300, -300, -50)
-    );
-    this.scene.tweens.add({
-      targets: this,
-      duration: 2000,
-      y: { from: this.y, to: this.y + Phaser.Math.Between(100, -100) },
-      x: { from: this.x, to: this.x + Phaser.Math.Between(100, -100) },
-      yoyo: true,
-      repeat: -1,
-    });
+    if (this.name === "draco") {
+      this.scene.time.delayedCall(5000, () => {
+        this.canShoot = true;
+      });
+      this.canShoot = false;
+    }
   }
 
   init() {
@@ -54,8 +41,20 @@ class Enemy extends Phaser.GameObjects.Sprite {
     this.direction = -1;
   }
 
+  startPatternMovement() {
+    const moveDistance = 300;
+    this.scene.tweens.add({
+      targets: this,
+      x: this.x + moveDistance,
+      duration: 4000,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+  }
+
   update() {
-    if (this.name === "draco" && Phaser.Math.Between(1, 6) > 5) {
+    if (this.name === "draco" && this.canShoot) {
       this.dracoShot();
     } else if (Phaser.Math.Between(1, 101) > 100) {
       if (!this.scene || !this.scene.player) return;
@@ -64,25 +63,13 @@ class Enemy extends Phaser.GameObjects.Sprite {
   }
 
   dracoShot() {
-    if (!this.scene || this.scene.player) return;
-
+    if (!this.scene || !this.scene.player) return;
     //this.scene.playAudio("dracoShot");
-    let shot = new EnemyShot(
-      this.scene,
-      this.x,
-      this.y,
-      "enemy",
-      this.name,
-      this.pattern[this.patternIndex],
-      300
-    );
+    let shot = new EnemyShot(this.scene, this.x, this.y, "enemyShot", 0, -300);
     this.scene.enemyShots.add(shot);
-    this.patternIndex =
-      this.patternIndex + 1 === this.pattern.length ? 0 : ++this.patternIndex;
   }
 
   dead() {
-    console.log(`Enemy ${this.name} is dead`);
     if (this.name === "draco") {
       this.scene.cameras.main.shake(500);
     }
@@ -101,14 +88,14 @@ class Enemy extends Phaser.GameObjects.Sprite {
     });
 
     new Explosion(this.scene, this.x, this.y);
+
     if (this.name === "draco") {
-      this.scene.number = 3; //?????
-      this.scene.playAudio("explosion");
       this.scene.endScene();
     }
-    this.setActive(false); // Marcando como inativo
-    this.setVisible(false); // Tornando invisível
-    this.destroy(); // Destruindo o objeto
+
+    this.setActive(false);
+    this.setVisible(false);
+    this.destroy();
   }
 
   showPoints(score, color = 0xff0000) {

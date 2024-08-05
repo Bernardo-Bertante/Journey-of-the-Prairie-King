@@ -8,7 +8,8 @@ class Guns extends Phaser.GameObjects.Sprite {
     scene.physics.add.existing(this);
     this.body.setAllowGravity(false);
     this.body.setCircle(19);
-    //this.body.setOffset(12, 12);
+    this.setScale(2);
+    this.body.setOffset(-5, -5);
     this.body.setVelocityX(-100);
     this.init();
   }
@@ -37,7 +38,7 @@ class Guns extends Phaser.GameObjects.Sprite {
       duration: 1000,
       x: this.x,
       y: this.y,
-      scale: { from: 0.9, to: 1 },
+      scale: { from: 1.4, to: 1.5 },
       alpha: { from: 0.8, to: 1 },
       repeat: -1,
     });
