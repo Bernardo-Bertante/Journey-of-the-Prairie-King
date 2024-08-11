@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import LoadScreen from "./scenes/LoadScreen";
+import LoadScreen from "./scenes/loadScreen";
 import Game from "./scenes/game";
 import Transition from "./scenes/transition";
 import Splash from "./scenes/splash";
