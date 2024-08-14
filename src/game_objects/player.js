@@ -8,8 +8,8 @@ class Player extends Phaser.GameObjects.Sprite {
     this.gun = gun;
     this.moveX = 0;
     this.moveY = 0;
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
+    this.scene.add.existing(this);
+    this.scene.physics.add.existing(this);
     this.body.setCollideWorldBounds(true);
     this.body.setAllowGravity(false);
     this.body.setCircle(8);

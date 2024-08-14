@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/photonstorm/phaser3-project-template-custom-build#readme",
   "dependencies": {
-    "phaser": "^3.21.0"
+    "phaser": "^3.80.1"
   },
   "devDependencies": {
     "@babel/core": "^7.7.4",

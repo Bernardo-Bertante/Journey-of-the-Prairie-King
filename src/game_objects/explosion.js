@@ -23,7 +23,8 @@ class Explosion {
     this.scene.tweens.add({
       targets: this.lights,
       duration: Phaser.Math.Between(600, 1000),
-      scale: { from: 2, to: 0 },
+      scaleX: { from: 2, to: 0 },
+      scaleY: { from: 2, to: 0 },
     });
   }
 }

@@ -70,16 +70,11 @@ export default class Game extends Phaser.Scene {
     const tileset = this.map.addTilesetImage("assets", "tiles");
 
     // Create the main layers of the game
-    this.groundLayer = this.map.createStaticLayer("groundLayer", tileset, 0, 0);
+    this.groundLayer = this.map.createLayer("groundLayer", tileset, 0, 0);
 
-    this.treeAnimLayer = this.map.createStaticLayer(
-      "treeAnimLayer",
-      tileset,
-      0,
-      0
-    );
+    this.treeAnimLayer = this.map.createLayer("treeAnimLayer", tileset, 0, 0);
 
-    this.objectColliderLayer = this.map.createStaticLayer(
+    this.objectColliderLayer = this.map.createLayer(
       "objectColliderLayer",
       tileset,
       0,
@@ -87,6 +82,12 @@ export default class Game extends Phaser.Scene {
     );
 
     this.objectColliderLayer.setCollisionByProperty({ "collider": true });
+
+    this.objectColliderLayer.forEachTile((tile) => {
+      if (tile.properties.collider) {
+        console.log(`Tile ${tile.index} está configurado para colidir.`);
+      }
+    });
 
     const gameWidth = this.cameras.main.width;
     const gameHeight = this.cameras.main.height;
@@ -195,7 +196,15 @@ export default class Game extends Phaser.Scene {
   }
 
   addColliders() {
-    this.physics.add.collider(this.players, this.objectColliderLayer);
+    //this.physics.add.collider(this.players, this.objectColliderLayer);
+    this.testObject = this.physics.add.sprite(100, 100, "test");
+    this.physics.add.collider(
+      this.players,
+      this.testObject,
+      this.handleCollision,
+      null,
+      this
+    );
 
     // this.physics.add.overlap(
     //   this.players,
@@ -247,6 +256,10 @@ export default class Game extends Phaser.Scene {
       this
     );
     this.physics.world.on("worldbounds", this.onWorldBounds);
+  }
+
+  handleCollision(player, collider) {
+    console.log("Colisão detectada entre", player, "e", collider);
   }
 
   onWorldBounds(body, t) {
