@@ -96,7 +96,7 @@ export default class Game extends Phaser.Scene {
     const mapWidth = this.map.widthInPixels;
     const mapHeight = this.map.heightInPixels;
 
-    // Apply the scale factor
+    //Apply the scale factor
     const scaleFactor = 2;
     const scaledMapWidth = mapWidth * scaleFactor;
     const scaledMapHeight = mapHeight * scaleFactor;
@@ -122,12 +122,14 @@ export default class Game extends Phaser.Scene {
   }
 
   createTreeAnimations() {
-    this.anims.create({
-      key: "treeSwing",
-      frames: this.anims.generateFrameNumbers("tree", { start: 0, end: 1 }),
-      frameRate: 1,
-      repeat: -1,
-    });
+    if (!this.anims.exists("treeSwing")) {
+      this.anims.create({
+        key: "treeSwing",
+        frames: this.anims.generateFrameNumbers("tree", { start: 0, end: 1 }),
+        frameRate: 1,
+        repeat: -1,
+      });
+    }
   }
 
   createTrees() {
@@ -196,25 +198,9 @@ export default class Game extends Phaser.Scene {
   }
 
   addColliders() {
-    //this.physics.add.collider(this.players, this.objectColliderLayer);
-    this.testObject = this.physics.add.sprite(100, 100, "test");
-    this.physics.add.collider(
-      this.players,
-      this.testObject,
-      this.handleCollision,
-      null,
-      this
-    );
+    this.physics.add.collider(this.players, this.objectColliderLayer);
 
-    // this.physics.add.overlap(
-    //   this.players,
-    //   this.objectColliderLayer,
-    //   (player, tile) => {
-    //     console.log("Overlap detected!", tile);
-    //   },
-    //   null,
-    //   this
-    // );
+    this.physics.add.collider(this.enemies, this.objectColliderLayer);
 
     this.physics.add.collider(
       this.players,

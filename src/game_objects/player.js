@@ -23,68 +23,30 @@ class Player extends Phaser.GameObjects.Sprite {
   }
 
   init() {
-    this.scene.anims.create({
-      key: this.name + "idle",
-      frames: this.scene.anims.generateFrameNumbers(this.name, {
-        start: 5,
-        end: 6,
-      }),
-      frameRate: 2,
-      repeat: -1,
-    });
+    const animations = [
+      { key: "idle", start: 5, end: 6, frameRate: 2 },
+      { key: "walkForward", start: 2, end: 3, frameRate: 4 },
+      { key: "walkBackward", start: 0, end: 1, frameRate: 4 },
+      { key: "right", start: 7, end: 8, frameRate: 4 },
+      { key: "left", start: 9, end: 10, frameRate: 4 },
+      { key: "win", start: 4, end: 4, frameRate: 2 },
+    ];
 
-    this.scene.anims.create({
-      key: this.name + "walkForward",
-      frames: this.scene.anims.generateFrameNumbers(this.name, {
-        start: 2,
-        end: 3,
-      }),
-      frameRate: 4,
-      repeat: -1,
-    });
-
-    this.scene.anims.create({
-      key: this.name + "walkBackward",
-      frames: this.scene.anims.generateFrameNumbers(this.name, {
-        start: 0,
-        end: 1,
-      }),
-      frameRate: 4,
-      repeat: -1,
-    });
-
-    this.scene.anims.create({
-      key: this.name + "right",
-      frames: this.scene.anims.generateFrameNumbers(this.name, {
-        start: 7,
-        end: 8,
-      }),
-      frameRate: 4,
-      repeat: -1,
-    });
-
-    this.scene.anims.create({
-      key: this.name + "left",
-      frames: this.scene.anims.generateFrameNumbers(this.name, {
-        start: 9,
-        end: 10,
-      }),
-      frameRate: 4,
-      repeat: -1,
-    });
-
-    this.scene.anims.create({
-      key: this.name + "win",
-      frames: this.scene.anims.generateFrameNumbers(this.name, {
-        start: 4,
-        end: 4,
-      }),
-      frameRate: 2,
-      repeat: -1,
+    animations.forEach(({ key, start, end, frameRate }) => {
+      if (!this.scene.anims.exists(this.name + key)) {
+        this.scene.anims.create({
+          key: this.name + key,
+          frames: this.scene.anims.generateFrameNumbers(this.name, {
+            start,
+            end,
+          }),
+          frameRate,
+          repeat: -1,
+        });
+      }
     });
 
     this.anims.play(this.name + "walkBackward", true);
-    this.upDelta = 0;
   }
 
   setControls() {
@@ -135,9 +97,9 @@ class Player extends Phaser.GameObjects.Sprite {
   update(timestep, delta) {
     if (this.death) return;
 
-    const speed = 3;
-    this.moveX = 0;
-    this.moveY = 0;
+    const speed = 300;
+    this.moveX = 0; // Inicializa a variável moveX da instância
+    this.moveY = 0; // Inicializa a variável moveY da instância
 
     if (this.cursors.left.isDown || this.A.isDown) {
       this.moveX = -1;
@@ -152,7 +114,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.moveY = 1;
     }
 
-    // Normalization of the movement vector
+    // Normalização do vetor de movimento
     const magnitude = Math.sqrt(
       this.moveX * this.moveX + this.moveY * this.moveY
     );
@@ -161,6 +123,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.moveY = (this.moveY / magnitude) * speed;
     }
 
+    // Verifica o movimento e atualiza as animações
     if (this.moveX !== 0 || this.moveY !== 0) {
       if (this.moveX > 0) {
         this.anims.play(this.name + "right", true);
@@ -175,8 +138,9 @@ class Player extends Phaser.GameObjects.Sprite {
       this.anims.play(this.name + "idle", true);
     }
 
-    this.x += this.moveX;
-    this.y += this.moveY;
+    // Atualiza a velocidade do corpo com base em moveX e moveY da instância
+    this.body.setVelocityX(this.moveX);
+    this.body.setVelocityY(this.moveY);
 
     if (Phaser.Input.Keyboard.JustDown(this.SPACE)) {
       this.shoot();

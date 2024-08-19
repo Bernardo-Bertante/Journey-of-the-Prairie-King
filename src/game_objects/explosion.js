@@ -6,15 +6,17 @@ class Explosion {
     this.lights = Array(Phaser.Math.Between(min, max))
       .fill(0)
       .map((_, i) => {
-        this.scene.anims.create({
-          key: "explosion",
-          frames: this.scene.anims.generateFrameNumbers(this.name, {
-            start: 0,
-            end: 4,
-          }),
-          frameRate: 5,
-          repeat: -1,
-        });
+        if (!this.scene.anims.exists("bulletAnim")) {
+          this.scene.anims.create({
+            key: "explosion",
+            frames: this.scene.anims.generateFrameNumbers(this.name, {
+              start: 0,
+              end: 4,
+            }),
+            frameRate: 5,
+            repeat: -1,
+          });
+        }
       });
     this.init();
   }

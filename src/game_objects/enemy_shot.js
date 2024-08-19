@@ -23,16 +23,18 @@ class EnemyShot extends Phaser.GameObjects.Sprite {
   }
 
   init() {
-    this.scene.anims.create({
-      key: "enemyBulletAnim",
-      frames: this.scene.anims.generateFrameNumbers("shot", {
-        start: 2,
-        end: 2,
-      }),
-      frameRate: 1,
-      repeat: -1,
-    });
-    this.anims.play("enemyBulletAnim", true);
+    if (!this.scene.anims.exists("enemyBulletAnim")) {
+      this.scene.anims.create({
+        key: "enemyBulletAnim",
+        frames: this.scene.anims.generateFrameNumbers("shot", {
+          start: 2,
+          end: 2,
+        }),
+        frameRate: 1,
+        repeat: -1,
+      });
+      this.anims.play("enemyBulletAnim", true);
+    }
   }
 
   shot() {
