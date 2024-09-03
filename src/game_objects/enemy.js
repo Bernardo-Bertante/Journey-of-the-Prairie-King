@@ -3,7 +3,7 @@ import EnemyShot from "./enemy_shot";
 
 const TYPES = {
   zombie: { points: 1, lives: 1 },
-  draco: { points: 0, lives: 5 },
+  draco: { points: 0, lives: 20 },
 };
 
 class Enemy extends Phaser.GameObjects.Sprite {
@@ -31,12 +31,14 @@ class Enemy extends Phaser.GameObjects.Sprite {
   }
 
   init() {
-    this.scene.anims.create({
-      key: this.name,
-      frames: this.scene.anims.generateFrameNumbers(this.name),
-      frameRate: 10,
-      repeat: -1,
-    });
+    if (!this.scene.anims.exists(this.name)) {
+      this.scene.anims.create({
+        key: this.name,
+        frames: this.scene.anims.generateFrameNumbers(this.name),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
     this.anims.play(this.name, true);
     this.direction = -1;
   }

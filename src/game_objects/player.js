@@ -62,7 +62,7 @@ class Player extends Phaser.GameObjects.Sprite {
 
   shoot() {
     // this.scene.playAudio("shot");
-    const shotSpeed = 400;
+    const shotSpeed = 450;
 
     let velocityX = 0;
     let velocityY = 0;

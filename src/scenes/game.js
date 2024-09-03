@@ -83,12 +83,6 @@ export default class Game extends Phaser.Scene {
 
     this.objectColliderLayer.setCollisionByProperty({ "collider": true });
 
-    this.objectColliderLayer.forEachTile((tile) => {
-      if (tile.properties.collider) {
-        console.log(`Tile ${tile.index} está configurado para colidir.`);
-      }
-    });
-
     const gameWidth = this.cameras.main.width;
     const gameHeight = this.cameras.main.height;
 
@@ -113,12 +107,12 @@ export default class Game extends Phaser.Scene {
     this.objectColliderLayer.setPosition(centerX, centerY);
     this.treeAnimLayer.setPosition(centerX, centerY);
 
-    const debugGraphics = this.add.graphics().setAlpha(0.75);
-    this.objectColliderLayer.renderDebug(debugGraphics, {
-      tileColor: null, // Color of non-colliding tiles
-      collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-      faceColor: new Phaser.Display.Color(40, 39, 37, 255), // Color of colliding face edges
-    });
+    // const debugGraphics = this.add.graphics().setAlpha(0.75);
+    // this.objectColliderLayer.renderDebug(debugGraphics, {
+    //   tileColor: null, // Color of non-colliding tiles
+    //   collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+    //   faceColor: new Phaser.Display.Color(40, 39, 37, 255), // Color of colliding face edges
+    // });
   }
 
   createTreeAnimations() {
@@ -200,12 +194,32 @@ export default class Game extends Phaser.Scene {
   addColliders() {
     this.physics.add.collider(this.players, this.objectColliderLayer);
 
-    this.physics.add.collider(this.enemies, this.objectColliderLayer);
+    this.physics.add.collider(this.enemyGroup, this.objectColliderLayer);
 
     this.physics.add.collider(
       this.players,
       this.enemyGroup,
       this.crashEnemy,
+      () => {
+        return true;
+      },
+      this
+    );
+
+    this.physics.add.collider(
+      this.shots,
+      this.objectColliderLayer,
+      this.unspawnShot,
+      () => {
+        return true;
+      },
+      this
+    );
+
+    this.physics.add.collider(
+      this.enemyShots,
+      this.objectColliderLayer,
+      this.unspawnShot,
       () => {
         return true;
       },
@@ -244,8 +258,8 @@ export default class Game extends Phaser.Scene {
     this.physics.world.on("worldbounds", this.onWorldBounds);
   }
 
-  handleCollision(player, collider) {
-    console.log("Colisão detectada entre", player, "e", collider);
+  unspawnShot(shot, objectColliderLayer) {
+    shot.destroy();
   }
 
   onWorldBounds(body, t) {

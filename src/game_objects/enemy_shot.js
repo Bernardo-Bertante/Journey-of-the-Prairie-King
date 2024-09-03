@@ -33,8 +33,8 @@ class EnemyShot extends Phaser.GameObjects.Sprite {
         frameRate: 1,
         repeat: -1,
       });
-      this.anims.play("enemyBulletAnim", true);
     }
+    this.anims.play("enemyBulletAnim", true);
   }
 
   shot() {

@@ -37,22 +37,22 @@ class Shot extends Phaser.GameObjects.Sprite {
         frameRate: 1,
         repeat: -1,
       });
-
-      this.anims.play("bulletAnim", true);
-
-      this.scene.tweens.add({
-        targets: this,
-        duration: 200,
-        rotation: 5,
-        repeat: -1,
-      });
-      this.scene.tweens.add({
-        targets: this,
-        duration: 200,
-        intensity: { from: 0.3, to: 0.7 },
-        repeat: -1,
-      });
     }
+
+    this.anims.play("bulletAnim", true);
+
+    this.scene.tweens.add({
+      targets: this,
+      duration: 200,
+      rotation: 5,
+      repeat: -1,
+    });
+    this.scene.tweens.add({
+      targets: this,
+      duration: 200,
+      intensity: { from: 0.3, to: 0.7 },
+      repeat: -1,
+    });
   }
 }
 
